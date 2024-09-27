@@ -1,38 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
-const HomePage = ({ onExtract }) => {
-  const [files, setFiles] = useState([]);
-  const [keywords, setKeywords] = useState('');
+const australianStates = [
+  'Queensland',
+  'New South Wales',
+  'Victoria',
+  'Northern Territory',
+  'Western Australia',
+  'South Australia',
+];
 
-  const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
-  };
-
+const HomePage = ({ onExtract, selectedState, setSelectedState, isLoading, error }) => {
   const handleExtract = () => {
-    onExtract(files, keywords);
+    if (selectedState) {
+      onExtract(selectedState);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Infrastructure Budget Information Extractor</h1>
       <div className="mb-6">
-        <Label htmlFor="file-upload" className="block mb-2">Upload PDF Documents</Label>
-        <Input id="file-upload" type="file" multiple onChange={handleFileChange} accept=".pdf" />
+        <Select value={selectedState} onValueChange={setSelectedState}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a state" />
+          </SelectTrigger>
+          <SelectContent>
+            {australianStates.map((state) => (
+              <SelectItem key={state} value={state}>
+                {state}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      <div className="mb-6">
-        <Label htmlFor="keywords" className="block mb-2">Search Keywords</Label>
-        <Input
-          id="keywords"
-          type="text"
-          placeholder="e.g., Mount Isa, road, infrastructure"
-          value={keywords}
-          onChange={(e) => setKeywords(e.target.value)}
-        />
-      </div>
-      <Button onClick={handleExtract} className="w-full">Extract Information</Button>
+      <Button onClick={handleExtract} disabled={!selectedState || isLoading} className="w-full">
+        {isLoading ? 'Extracting...' : 'Extract Information'}
+      </Button>
+      {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   );
 };
