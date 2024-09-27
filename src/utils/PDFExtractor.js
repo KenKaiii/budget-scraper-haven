@@ -51,7 +51,6 @@ export const extractInformation = async (state, infoType) => {
 };
 
 const parseProjectsFromSummary = (summary) => {
-  // This is a simple parser. You might need to adjust it based on the actual format of the summary.
   const lines = summary.split('\n');
   const projects = [];
   let currentProject = {};
