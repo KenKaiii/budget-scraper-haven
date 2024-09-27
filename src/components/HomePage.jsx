@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from './ui/button';
 import { extractInformation } from '../utils/PDFExtractor';
 import Notification from './Notification';
+import { Loader2 } from 'lucide-react';
 
 const australianStates = [
   'Queensland',
@@ -11,6 +12,8 @@ const australianStates = [
   'Northern Territory',
   'Western Australia',
   'South Australia',
+  'Tasmania',
+  'Australian Capital Territory',
 ];
 
 const informationTypes = [
@@ -37,21 +40,19 @@ const HomePage = ({ onExtract }) => {
         onExtract(results);
       } catch (err) {
         console.error('Extraction error:', err);
-        setError(err.message);
+        setError(err.message || 'An error occurred during extraction. Please try again.');
       } finally {
         setIsLoading(false);
       }
+    } else {
+      setError('Please select both a state and an information type.');
     }
   };
 
-  const copyErrorToClipboard = () => {
-    navigator.clipboard.writeText(error);
-  };
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Comprehensive Infrastructure Budget Information Extractor</h1>
-      <div className="space-y-6">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Infrastructure Budget Information Extractor</h1>
+      <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Select a state</label>
           <Select value={selectedState} onValueChange={setSelectedState}>
@@ -87,7 +88,14 @@ const HomePage = ({ onExtract }) => {
           disabled={!selectedState || !selectedInfoType || isLoading} 
           className="w-full"
         >
-          {isLoading ? 'Extracting...' : 'Extract Information'}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Extracting...
+            </>
+          ) : (
+            'Extract Information'
+          )}
         </Button>
       </div>
       {error && (
@@ -95,11 +103,6 @@ const HomePage = ({ onExtract }) => {
           message={error} 
           type="error"
           onClose={() => setError(null)}
-          action={
-            <Button onClick={copyErrorToClipboard} variant="outline" size="sm">
-              Copy Error
-            </Button>
-          }
         />
       )}
     </div>
