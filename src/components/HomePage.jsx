@@ -37,6 +37,7 @@ const HomePage = ({ onExtract }) => {
       setError(null);
       try {
         const results = await extractInformation(selectedState, selectedInfoType);
+        console.log('Extraction results:', results);
         onExtract(results);
       } catch (err) {
         console.error('Extraction error:', err);

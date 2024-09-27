@@ -17,9 +17,13 @@ export const extractInformation = async (state, infoType) => {
     throw new Error('PDF not found for the selected state');
   }
 
+  console.log(`Attempting to extract information from: ${pdfPath}`);
+
   // TODO: Implement actual PDF extraction logic here
   // For now, we'll use a placeholder extraction
   const extractedText = `Sample extracted text for ${state} ${infoType} projects`;
+
+  console.log('Extracted text:', extractedText);
 
   try {
     console.log('Calling OpenAI API...');
@@ -31,12 +35,14 @@ export const extractInformation = async (state, infoType) => {
       ],
       max_tokens: 500,
     });
-    console.log('OpenAI API response:', response);
+    console.log('OpenAI API response:', response.data);
 
     const summary = response.data.choices[0].message.content.trim();
+    console.log('Parsed summary:', summary);
 
     // Parse the summary to extract project information
     const projects = parseProjectsFromSummary(summary);
+    console.log('Parsed projects:', projects);
 
     return projects;
   } catch (error) {
