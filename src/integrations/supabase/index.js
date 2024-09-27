@@ -1,11 +1,39 @@
-// Import all the relevant exports from other files in the supabase directory
-import { supabase } from './supabase.js';
-import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.jsx';
+import { supabase } from './supabase';
+import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth';
 
-// Export all the imported functions and objects from .auth and .hooks/
+// Import hooks from budget_articles
+import {
+  useBudgetArticle,
+  useBudgetArticles,
+  useAddBudgetArticle,
+  useUpdateBudgetArticle,
+  useDeleteBudgetArticle
+} from './hooks/budget_articles';
+
+// Import hooks from users
+import {
+  useUser,
+  useUsers,
+  useAddUser,
+  useUpdateUser,
+  useDeleteUser
+} from './hooks/users';
+
 export {
   supabase,
   SupabaseAuthProvider,
   useSupabaseAuth,
   SupabaseAuthUI,
+  // Budget Articles hooks
+  useBudgetArticle,
+  useBudgetArticles,
+  useAddBudgetArticle,
+  useUpdateBudgetArticle,
+  useDeleteBudgetArticle,
+  // Users hooks
+  useUser,
+  useUsers,
+  useAddUser,
+  useUpdateUser,
+  useDeleteUser
 };
