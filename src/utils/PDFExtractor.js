@@ -52,6 +52,11 @@ export const extractInformation = async (state, infoType) => {
     ];
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
-    throw new Error(`Failed to analyze the extracted information: ${error.message}\n\nStack trace: ${error.stack}`);
+    let errorMessage = `Failed to analyze the extracted information: ${error.message}`;
+    if (error.response) {
+      errorMessage += `\nStatus: ${error.response.status}\nData: ${JSON.stringify(error.response.data)}`;
+    }
+    errorMessage += `\nStack trace: ${error.stack}`;
+    throw new Error(errorMessage);
   }
 };

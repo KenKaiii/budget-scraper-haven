@@ -12,7 +12,7 @@ const Notification = ({ message, type = 'error', onClose, action }) => {
           <AlertCircle className="h-5 w-5" aria-hidden="true" />
         </div>
         <div className="ml-3 w-full">
-          <p className="text-sm font-medium">{message}</p>
+          <p className="text-sm font-medium whitespace-pre-wrap">{message}</p>
           {action && <div className="mt-2">{action}</div>}
         </div>
         <div className="ml-auto pl-3">
