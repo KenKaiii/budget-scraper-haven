@@ -63,14 +63,35 @@ export const GuestLoginButton = () => {
   const handleGuestLogin = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email: 'bytebuzzsite@gmail.com',
         password: '123123',
       });
       if (error) throw error;
+      if (data.user) {
+        // If the user was created successfully, sign them in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: 'bytebuzzsite@gmail.com',
+          password: '123123',
+        });
+        if (signInError) throw signInError;
+      }
       navigate('/dashboard');
     } catch (error) {
       console.error('Error logging in as guest:', error.message);
+      // If the user already exists, try to sign in
+      if (error.message.includes('User already registered')) {
+        try {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: 'bytebuzzsite@gmail.com',
+            password: '123123',
+          });
+          if (signInError) throw signInError;
+          navigate('/dashboard');
+        } catch (signInError) {
+          console.error('Error signing in as existing guest:', signInError.message);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
