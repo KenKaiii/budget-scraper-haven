@@ -63,33 +63,12 @@ export const GuestLoginButton = () => {
   const handleGuestLogin = async () => {
     setIsLoading(true);
     try {
-      // Attempt to sign in directly
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'bytebuzzsite@gmail.com',
         password: '123123',
       });
       
-      if (error) {
-        // If sign in fails, attempt to sign up
-        if (error.message.includes('Invalid login credentials')) {
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: 'bytebuzzsite@gmail.com',
-            password: '123123',
-          });
-          
-          if (signUpError) throw signUpError;
-          
-          // If sign up is successful, attempt to sign in again
-          const { error: secondSignInError } = await supabase.auth.signInWithPassword({
-            email: 'bytebuzzsite@gmail.com',
-            password: '123123',
-          });
-          
-          if (secondSignInError) throw secondSignInError;
-        } else {
-          throw error;
-        }
-      }
+      if (error) throw error;
       
       navigate('/dashboard');
     } catch (error) {
