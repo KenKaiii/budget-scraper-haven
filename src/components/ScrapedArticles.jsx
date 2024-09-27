@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useBudgetArticles, useAddBudgetArticle } from '../integrations/supabase';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 const SCRAPE_DO_API_KEY = '3dda27f5851f49a0908082bd607a75cf43130a33861';
 
 const ScrapedArticles = () => {
-  const { session } = useSupabaseAuth();
   const { data: articles, isLoading, error } = useBudgetArticles();
   const addArticleMutation = useAddBudgetArticle();
   const [scrapingUrl, setScrapingUrl] = useState('');
@@ -26,7 +24,6 @@ const ScrapedArticles = () => {
         link: url,
         publication_date: new Date().toISOString(),
         content,
-        user_id: session?.user?.id
       };
 
       await addArticleMutation.mutateAsync(newArticle);
@@ -48,23 +45,19 @@ const ScrapedArticles = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Scraped Council Budget Articles</h1>
       
-      {session ? (
-        <form onSubmit={handleSubmit} className="mb-4">
-          <input
-            type="url"
-            value={scrapingUrl}
-            onChange={(e) => setScrapingUrl(e.target.value)}
-            placeholder="Enter URL to scrape"
-            className="w-full p-2 border rounded"
-            required
-          />
-          <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
-            Scrape Article
-          </button>
-        </form>
-      ) : (
-        <p className="mb-4 text-red-500">Please log in to scrape articles.</p>
-      )}
+      <form onSubmit={handleSubmit} className="mb-4">
+        <input
+          type="url"
+          value={scrapingUrl}
+          onChange={(e) => setScrapingUrl(e.target.value)}
+          placeholder="Enter URL to scrape"
+          className="w-full p-2 border rounded"
+          required
+        />
+        <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+          Scrape Article
+        </button>
+      </form>
 
       {articles?.length === 0 ? (
         <p>No articles found.</p>
