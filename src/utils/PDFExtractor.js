@@ -23,14 +23,17 @@ export const extractInformation = async (state, infoType) => {
 
   try {
     console.log('Calling OpenAI API...');
-    const response = await openai.createCompletion({
-      model: "text-davinci-002",
-      prompt: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`,
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {role: "system", content: "You are a helpful assistant that summarizes text about infrastructure projects."},
+        {role: "user", content: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`}
+      ],
       max_tokens: 150,
     });
     console.log('OpenAI API response:', response);
 
-    const summary = response.data.choices[0].text.trim();
+    const summary = response.data.choices[0].message.content.trim();
 
     // Return placeholder data along with the summary
     return [
