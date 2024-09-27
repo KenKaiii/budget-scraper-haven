@@ -1,70 +1,39 @@
-# Welcome to your GPT Engineer project
+# Council Budget Scraper
 
-## Project info
+This project is a web application that scrapes council budget information from various websites using the Scrape.do API. It provides an intuitive user interface for viewing and managing this information.
 
-**URL**: https://run.gptengineer.app/projects/0884f498-ae75-4d8b-9583-73315bab11e7/improve
+## Features
 
-## How can I edit this code?
+- Scrapes council budget information using the Scrape.do API
+- Tracks keywords related to council budgets
+- Displays scraped articles in a user-friendly interface
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use GPT Engineer**
+To run this project locally:
 
-Simply visit the GPT Engineer project at [GPT Engineer](https://gptengineer.app/projects/0884f498-ae75-4d8b-9583-73315bab11e7/improve) and start prompting.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
 
-Changes made via gptengineer.app will be committed automatically to this repo.
+## Technologies Used
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the GPT Engineer UI.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
 - React
-- shadcn-ui
 - Tailwind CSS
+- Axios for API requests
+- Scrape.do API for web scraping
 
-## How can I deploy this project?
+## Next Steps
 
-All GPT Engineer projects can be deployed directly via the GPT Engineer app.
+- Implement Cheerio for HTML parsing
+- Set up Supabase for backend storage
+- Add user authentication and authorization
+- Implement more advanced search and filtering options
 
-Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/0884f498-ae75-4d8b-9583-73315bab11e7/improve) and click on Share -> Publish.
+## Contributing
 
-## I want to use a custom domain - is that possible?
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+## License
+
+This project is open source and available under the [MIT License](LICENSE).

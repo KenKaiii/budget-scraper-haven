@@ -1,10 +1,10 @@
 import React from 'react';
-import ScrapeData from './components/ScrapeData';
+import ScrapedArticles from './components/ScrapedArticles';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
-      <ScrapeData />
+      <ScrapedArticles />
     </div>
   );
 }
