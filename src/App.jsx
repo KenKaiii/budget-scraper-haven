@@ -1,6 +1,9 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SupabaseAuthProvider, SupabaseAuthUI, useSupabaseAuth } from './integrations/supabase/auth';
 import ScrapedArticles from './components/ScrapedArticles';
+
+const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { session, logout } = useSupabaseAuth();
@@ -37,9 +40,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <SupabaseAuthProvider>
-      <AppContent />
-    </SupabaseAuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <SupabaseAuthProvider>
+        <AppContent />
+      </SupabaseAuthProvider>
+    </QueryClientProvider>
   );
 }
 
