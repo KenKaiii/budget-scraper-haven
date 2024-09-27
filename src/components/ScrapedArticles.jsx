@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useBudgetArticles, useAddBudgetArticle } from '../integrations/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 const SCRAPE_DO_API_KEY = '3dda27f5851f49a0908082bd607a75cf43130a33861';
 
