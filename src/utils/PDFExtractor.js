@@ -1,5 +1,8 @@
 import { Configuration, OpenAIApi } from 'openai';
-import pdf from 'pdf-parse';
+import * as pdfjs from 'pdfjs-dist';
+
+// Set up the worker for pdf.js
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const configuration = new Configuration({
   apiKey: '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',
@@ -30,11 +33,18 @@ export const extractInformation = async (state, infoType) => {
     if (!pdfResponse.ok) {
       throw new Error(`HTTP error! status: ${pdfResponse.status}`);
     }
-    const pdfBuffer = await pdfResponse.arrayBuffer();
+    const pdfData = await pdfResponse.arrayBuffer();
 
-    // Parse the PDF
-    const pdfData = await pdf(new Uint8Array(pdfBuffer));
-    const extractedText = pdfData.text;
+    // Load the PDF using pdf.js
+    const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
+    let extractedText = '';
+
+    // Extract text from each page
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
+    }
 
     console.log('Extracted text:', extractedText);
 
