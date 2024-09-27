@@ -58,10 +58,12 @@ export const SupabaseAuthUI = () => {
 
 export const GuestLoginButton = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleGuestLogin = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'bytebuzzsite@gmail.com',
@@ -73,19 +75,22 @@ export const GuestLoginButton = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Error logging in as guest:', error.message);
-      alert('Failed to log in as guest. Please try again or use a different method.');
+      setError('Failed to log in as guest. Please try again or use a different method.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <button
-      onClick={handleGuestLogin}
-      disabled={isLoading}
-      className="w-full py-3 px-4 mt-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-    >
-      {isLoading ? 'Loading...' : 'Continue as Guest'}
-    </button>
+    <div>
+      <button
+        onClick={handleGuestLogin}
+        disabled={isLoading}
+        className="w-full py-3 px-4 mt-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+      >
+        {isLoading ? 'Loading...' : 'Continue as Guest'}
+      </button>
+      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+    </div>
   );
 };
