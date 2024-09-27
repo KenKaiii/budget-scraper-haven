@@ -1,67 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useBudgetArticles, useAddBudgetArticle } from '../integrations/supabase';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 import axios from 'axios';
+import cheerio from 'cheerio';
 
-const SCRAPE_DO_API_KEY = '3dda27f5851f49a0908082bd607a75cf43130a33861'; // Replace with your actual API key
-const KEYWORDS = ['Council budget', 'budget announcement'];
+const SCRAPE_DO_API_KEY = '3dda27f5851f49a0908082bd607a75cf43130a33861';
 
 const ScrapedArticles = () => {
-  const [articles, setArticles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { session } = useSupabaseAuth();
+  const { data: articles, isLoading, error } = useBudgetArticles();
+  const addArticleMutation = useAddBudgetArticle();
+  const [scrapingUrl, setScrapingUrl] = useState('');
 
-  const scrapeArticles = async (url) => {
+  const scrapeArticle = async (url) => {
     try {
       const response = await axios.get(`https://api.scrape.do/?api_key=${SCRAPE_DO_API_KEY}&url=${encodeURIComponent(url)}`);
       const html = response.data;
+      const $ = cheerio.load(html);
       
-      // Here we would normally use Cheerio to parse the HTML and extract relevant information
-      // For now, we'll just simulate finding articles based on keywords
-      const simulatedArticles = KEYWORDS.flatMap(keyword => 
-        html.toLowerCase().includes(keyword.toLowerCase()) 
-          ? [{ title: `Article about ${keyword}`, link: url, publicationDate: new Date().toISOString() }] 
-          : []
-      );
+      const title = $('h1').first().text() || 'No title found';
+      const content = $('p').text() || 'No content found';
 
-      return simulatedArticles;
+      const newArticle = {
+        title,
+        link: url,
+        publication_date: new Date().toISOString(),
+        content,
+        user_id: session?.user?.id
+      };
+
+      await addArticleMutation.mutateAsync(newArticle);
     } catch (error) {
-      console.error('Error scraping articles:', error);
-      throw error;
+      console.error('Error scraping article:', error);
     }
   };
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // In a real scenario, you would have a list of URLs to scrape
-        const urls = ['https://example-council-website.com/news'];
-        const scrapedArticles = await Promise.all(urls.map(scrapeArticles));
-        setArticles(scrapedArticles.flat());
-      } catch (error) {
-        setError('Failed to fetch articles. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    scrapeArticle(scrapingUrl);
+    setScrapingUrl('');
+  };
 
   if (isLoading) return <div className="text-center mt-8">Loading articles...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (error) return <div className="text-center mt-8 text-red-500">Error: {error.message}</div>;
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Scraped Council Budget Articles</h1>
-      {articles.length === 0 ? (
-        <p>No relevant articles found.</p>
+      
+      {session ? (
+        <form onSubmit={handleSubmit} className="mb-4">
+          <input
+            type="url"
+            value={scrapingUrl}
+            onChange={(e) => setScrapingUrl(e.target.value)}
+            placeholder="Enter URL to scrape"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+            Scrape Article
+          </button>
+        </form>
+      ) : (
+        <p className="mb-4 text-red-500">Please log in to scrape articles.</p>
+      )}
+
+      {articles?.length === 0 ? (
+        <p>No articles found.</p>
       ) : (
         <ul className="space-y-4">
-          {articles.map((article, index) => (
-            <li key={index} className="border p-4 rounded-lg shadow">
+          {articles?.map((article) => (
+            <li key={article.id} className="border p-4 rounded-lg shadow">
               <h2 className="text-xl font-semibold">{article.title}</h2>
-              <p className="text-sm text-gray-500">Published on: {new Date(article.publicationDate).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-500">Published on: {new Date(article.publication_date).toLocaleDateString()}</p>
+              <p className="mt-2">{article.content.substring(0, 200)}...</p>
               <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                 Read more
               </a>
