@@ -1,5 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { SupabaseAuthProvider, SupabaseAuthUI, GuestLoginButton, useSupabaseAuth } from './integrations/supabase/auth';
 import ScrapedArticles from './components/ScrapedArticles';
 import { FaFileInvoiceDollar } from 'react-icons/fa';
@@ -45,11 +46,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SupabaseAuthProvider>
-        <AppContent />
-      </SupabaseAuthProvider>
-    </QueryClientProvider>
+    <Router>
+      <QueryClientProvider client={queryClient}>
+        <SupabaseAuthProvider>
+          <AppContent />
+        </SupabaseAuthProvider>
+      </QueryClientProvider>
+    </Router>
   );
 }
 
