@@ -25,9 +25,15 @@ export const extractInformation = async (state, infoType) => {
   console.log(`Attempting to extract information from: ${pdfPath}`);
 
   try {
-    // Read the PDF file
-    const dataBuffer = await fetch(pdfPath).then(res => res.arrayBuffer());
-    const pdfData = await pdf(dataBuffer);
+    // Fetch the PDF file
+    const response = await fetch(pdfPath);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const pdfBuffer = await response.arrayBuffer();
+
+    // Parse the PDF
+    const pdfData = await pdf(new Uint8Array(pdfBuffer));
     const extractedText = pdfData.text;
 
     console.log('Extracted text:', extractedText);
