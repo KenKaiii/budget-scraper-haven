@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
+import pdf from 'pdf-parse';
 
 const configuration = new Configuration({
   apiKey: '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',
@@ -23,13 +24,14 @@ export const extractInformation = async (state, infoType) => {
 
   console.log(`Attempting to extract information from: ${pdfPath}`);
 
-  // TODO: Implement actual PDF extraction logic here
-  // For now, we'll use a placeholder extraction
-  const extractedText = `Sample extracted text for ${state} ${infoType} projects`;
-
-  console.log('Extracted text:', extractedText);
-
   try {
+    // Read the PDF file
+    const dataBuffer = await fetch(pdfPath).then(res => res.arrayBuffer());
+    const pdfData = await pdf(dataBuffer);
+    const extractedText = pdfData.text;
+
+    console.log('Extracted text:', extractedText);
+
     console.log('Calling OpenAI API...');
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -50,7 +52,7 @@ export const extractInformation = async (state, infoType) => {
 
     return projects;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('Error in extraction process:', error);
     let errorMessage = `Failed to analyze the extracted information: ${error.message}`;
     if (error.response) {
       errorMessage += `\nStatus: ${error.response.status}\nData: ${JSON.stringify(error.response.data)}`;
