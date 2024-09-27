@@ -1,68 +1,82 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './supabase.js';
-import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from './supabase.js';
+import { useNavigate } from 'react-router-dom';
 
-const SupabaseAuthContext = createContext();
+const customTheme = {
+  default: {
+    colors: {
+      brand: '#2563eb',
+      brandAccent: '#1d4ed8',
+      inputBackground: 'white',
+      inputBorder: '#e2e8f0',
+      inputText: '#1e293b',
+      inputLabelText: '#64748b',
+    },
+    space: {
+      inputPadding: '1rem',
+      buttonPadding: '1rem',
+    },
+    borderWidths: {
+      buttonBorderWidth: '0px',
+      inputBorderWidth: '0px 0px 2px 0px',
+    },
+    radii: {
+      borderRadiusButton: '0.375rem',
+      buttonBorderRadius: '0.375rem',
+      inputBorderRadius: '0.375rem',
+    },
+    fontSizes: {
+      baseInputSize: '1rem',
+      baseButtonSize: '1rem',
+    },
+    fonts: {
+      bodyFontFamily: `'Roboto', sans-serif`,
+      buttonFontFamily: `'Roboto', sans-serif`,
+      inputFontFamily: `'Roboto', sans-serif`,
+    },
+  },
+};
 
-export const SupabaseAuthProvider = ({ children }) => {
+export const SupabaseAuthUI = () => {
   return (
-    <SupabaseAuthProviderInner>
-      {children}
-    </SupabaseAuthProviderInner>
+    <Auth
+      supabaseClient={supabase}
+      appearance={{ theme: ThemeSupa, ...customTheme }}
+      theme="default"
+      providers={[]}
+    />
   );
-}
+};
 
-export const SupabaseAuthProviderInner = ({ children }) => {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const queryClient = useQueryClient();
+export const GuestLoginButton = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
-    };
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      queryClient.invalidateQueries('user');
-    });
-
-    getSession();
-
-    return () => {
-      authListener.subscription.unsubscribe();
-      setLoading(false);
-    };
-  }, [queryClient]);
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    queryClient.invalidateQueries('user');
-    setLoading(false);
+  const handleGuestLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: 'bytebuzzsite@gmail.com',
+        password: '123123',
+      });
+      if (error) throw error;
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error logging in as guest:', error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
-      {children}
-    </SupabaseAuthContext.Provider>
+    <button
+      onClick={handleGuestLogin}
+      disabled={isLoading}
+      className="w-full py-3 px-4 mt-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+    >
+      {isLoading ? 'Loading...' : 'Continue as Guest'}
+    </button>
   );
 };
-
-export const useSupabaseAuth = () => {
-  return useContext(SupabaseAuthContext);
-};
-
-export const SupabaseAuthUI = () => (
-  <Auth
-    supabaseClient={supabase}
-    appearance={{ theme: ThemeSupa }}
-    theme="default"
-    providers={[]}
-  />
-);

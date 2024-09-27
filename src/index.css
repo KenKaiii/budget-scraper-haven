@@ -1,3 +1,30 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.auth-form {
+  @apply space-y-6;
+}
+
+.auth-form input {
+  @apply w-full px-3 py-2 border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-blue-500 transition-colors duration-200;
+}
+
+.auth-form button[type="submit"] {
+  @apply w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
