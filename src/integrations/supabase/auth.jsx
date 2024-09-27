@@ -63,35 +63,38 @@ export const GuestLoginButton = () => {
   const handleGuestLogin = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Attempt to sign in directly
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: 'bytebuzzsite@gmail.com',
         password: '123123',
       });
-      if (error) throw error;
-      if (data.user) {
-        // If the user was created successfully, sign them in
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: 'bytebuzzsite@gmail.com',
-          password: '123123',
-        });
-        if (signInError) throw signInError;
-      }
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error logging in as guest:', error.message);
-      // If the user already exists, try to sign in
-      if (error.message.includes('User already registered')) {
-        try {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+      
+      if (error) {
+        // If sign in fails, attempt to sign up
+        if (error.message.includes('Invalid login credentials')) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: 'bytebuzzsite@gmail.com',
             password: '123123',
           });
-          if (signInError) throw signInError;
-          navigate('/dashboard');
-        } catch (signInError) {
-          console.error('Error signing in as existing guest:', signInError.message);
+          
+          if (signUpError) throw signUpError;
+          
+          // If sign up is successful, attempt to sign in again
+          const { error: secondSignInError } = await supabase.auth.signInWithPassword({
+            email: 'bytebuzzsite@gmail.com',
+            password: '123123',
+          });
+          
+          if (secondSignInError) throw secondSignInError;
+        } else {
+          throw error;
         }
       }
+      
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error logging in as guest:', error.message);
+      alert('Failed to log in as guest. Please try again or use a different method.');
     } finally {
       setIsLoading(false);
     }
