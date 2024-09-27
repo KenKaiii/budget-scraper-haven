@@ -34,8 +34,8 @@ export const extractInformation = async (state, infoType) => {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        {role: "system", content: "You are a helpful assistant that summarizes text about infrastructure projects."},
-        {role: "user", content: `Summarize the following text about ${infoType} in ${state} and provide a list of projects with their budget, total estimated cost, and statistical area:\n\n${extractedText}`}
+        {role: "system", content: "You are a helpful assistant that extracts specific information about infrastructure projects. Provide only the project name, budget, total estimated cost, and location for each project mentioned."},
+        {role: "user", content: `Extract and list the infrastructure projects related to ${infoType} in ${state} from the following text. Include only the project name, budget, total estimated cost, and location for each project:\n\n${extractedText}`}
       ],
       max_tokens: 500,
     });
@@ -64,43 +64,28 @@ export const extractInformation = async (state, infoType) => {
 const parseProjectsFromSummary = (summary) => {
   console.log('Parsing summary:', summary);
   const projects = [];
-  const lines = summary.split('.');
-  
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-    if (trimmedLine.includes('project') || trimmedLine.includes('upgrade')) {
-      const project = {};
-      
-      // Extract project name
-      const nameMatch = trimmedLine.match(/the (.+?) with/i);
-      if (nameMatch) {
-        project.projectName = nameMatch[1].trim();
-      }
-      
-      // Extract budget/total estimated cost
-      const costMatch = trimmedLine.match(/total estimated cost of \$?([\d.]+) (million|billion)/i);
-      if (costMatch) {
-        let cost = parseFloat(costMatch[1]);
-        if (costMatch[2].toLowerCase() === 'billion') {
-          cost *= 1000;
-        }
-        project.totalEstimatedCost = `$${cost} million`;
-      }
-      
-      // Extract statistical area
-      const areaMatch = trimmedLine.match(/in the (.+?) statistical area/i);
-      if (areaMatch) {
-        project.statisticalArea = areaMatch[1].trim();
-      }
-      
-      // Only add the project if we have at least a name and cost
-      if (project.projectName && project.totalEstimatedCost) {
-        project.budget = project.totalEstimatedCost; // Assuming budget is the same as total estimated cost
-        projects.push(project);
-      }
+  const projectRegex = /Project:?\s*([\s\S]*?)(?=\n\s*Project:|$)/gi;
+  let match;
+
+  while ((match = projectRegex.exec(summary)) !== null) {
+    const projectInfo = match[1].trim();
+    const project = {};
+
+    const nameMatch = projectInfo.match(/Name:?\s*(.+)/i);
+    const budgetMatch = projectInfo.match(/Budget:?\s*(.+)/i);
+    const costMatch = projectInfo.match(/Total Estimated Cost:?\s*(.+)/i);
+    const locationMatch = projectInfo.match(/Location:?\s*(.+)/i);
+
+    if (nameMatch) project.projectName = nameMatch[1].trim();
+    if (budgetMatch) project.budget = budgetMatch[1].trim();
+    if (costMatch) project.totalEstimatedCost = costMatch[1].trim();
+    if (locationMatch) project.statisticalArea = locationMatch[1].trim();
+
+    if (Object.keys(project).length > 0) {
+      projects.push(project);
     }
   }
-  
+
   console.log('Parsed projects:', projects);
   return projects;
 };
