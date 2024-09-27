@@ -10,14 +10,14 @@ const ResultsPage = ({ results, onBack }) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Extracted Information</h2>
-      <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto mb-4">
+      <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto mb-4 whitespace-pre-wrap">
         <code>
           {results.map((project, index) => (
             `Project ${index + 1}:
-  Name: ${project.projectName}
-  Budget: ${project.budget}
-  Total Estimated Cost: ${project.totalEstimatedCost}
-  Location: ${project.statisticalArea}
+Name: ${project.projectName || 'N/A'}
+Budget: ${project.budget || 'N/A'}
+Total Estimated Cost: ${project.totalEstimatedCost || 'N/A'}
+Location: ${project.statisticalArea || 'N/A'}
 
 `
           )).join('\n')}

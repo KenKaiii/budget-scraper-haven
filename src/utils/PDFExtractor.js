@@ -34,10 +34,10 @@ export const extractInformation = async (state, infoType) => {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        {role: "system", content: "You are a helpful assistant that extracts specific information about infrastructure projects. Provide only the project name, budget, total estimated cost, and location for each project mentioned."},
-        {role: "user", content: `Extract and list the infrastructure projects related to ${infoType} in ${state} from the following text. Include only the project name, budget, total estimated cost, and location for each project:\n\n${extractedText}`}
+        {role: "system", content: "You are a helpful assistant that extracts specific information about infrastructure projects. Provide only the project name, budget, total estimated cost, and location for each project mentioned. Extract as many projects as possible from the given text, up to a maximum of 20 projects."},
+        {role: "user", content: `Extract and list the infrastructure projects related to ${infoType} in ${state} from the following text. Include only the project name, budget, total estimated cost, and location for each project. List as many projects as you can find, up to 20:\n\n${extractedText}`}
       ],
-      max_tokens: 500,
+      max_tokens: 1000,
     });
     console.log('OpenAI API response:', response.data);
 
