@@ -12,8 +12,12 @@ const pdfPaths = {
 };
 
 export const extractInformation = async (state, infoType) => {
+  console.log('Starting extraction process...');
+  console.log(`State: ${state}, Info Type: ${infoType}`);
+
   const pdfPath = pdfPaths[state];
   if (!pdfPath) {
+    console.error('PDF not found for the selected state');
     throw new Error('PDF not found for the selected state');
   }
 
@@ -52,6 +56,7 @@ export const extractInformation = async (state, infoType) => {
       errorMessage += `\nStatus: ${error.response.status}\nData: ${JSON.stringify(error.response.data)}`;
     }
     errorMessage += `\nStack trace: ${error.stack}`;
+    console.error(errorMessage);
     throw new Error(errorMessage);
   }
 };

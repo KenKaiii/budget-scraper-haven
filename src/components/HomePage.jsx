@@ -36,6 +36,7 @@ const HomePage = ({ onExtract }) => {
       setIsLoading(true);
       setError(null);
       try {
+        console.log('Calling extractInformation function...');
         const results = await extractInformation(selectedState, selectedInfoType);
         console.log('Extraction results:', results);
         onExtract(results);
