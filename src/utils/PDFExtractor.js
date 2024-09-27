@@ -26,11 +26,11 @@ export const extractInformation = async (state, infoType) => {
 
   try {
     // Fetch the PDF file
-    const response = await fetch(pdfPath);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const pdfResponse = await fetch(pdfPath);
+    if (!pdfResponse.ok) {
+      throw new Error(`HTTP error! status: ${pdfResponse.status}`);
     }
-    const pdfBuffer = await response.arrayBuffer();
+    const pdfBuffer = await pdfResponse.arrayBuffer();
 
     // Parse the PDF
     const pdfData = await pdf(new Uint8Array(pdfBuffer));
@@ -39,7 +39,7 @@ export const extractInformation = async (state, infoType) => {
     console.log('Extracted text:', extractedText);
 
     console.log('Calling OpenAI API...');
-    const response = await openai.createChatCompletion({
+    const openAIResponse = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         {role: "system", content: "You are a helpful assistant that extracts specific information about infrastructure projects. Provide only the project name, budget, total estimated cost, and location for each project mentioned. Extract as many projects as possible from the given text, up to a maximum of 20 projects."},
@@ -47,9 +47,9 @@ export const extractInformation = async (state, infoType) => {
       ],
       max_tokens: 1000,
     });
-    console.log('OpenAI API response:', response.data);
+    console.log('OpenAI API response:', openAIResponse.data);
 
-    const summary = response.data.choices[0].message.content.trim();
+    const summary = openAIResponse.data.choices[0].message.content.trim();
     console.log('Parsed summary:', summary);
 
     // Parse the summary to extract project information
