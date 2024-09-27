@@ -21,29 +21,36 @@ export const extractInformation = async (state, infoType) => {
   // For now, we'll use a placeholder extraction
   const extractedText = `Sample extracted text for ${state} ${infoType} projects`;
 
-  // Use OpenAI to analyze and summarize the extracted text
-  const response = await openai.createCompletion({
-    model: "text-davinci-002",
-    prompt: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`,
-    max_tokens: 150,
-  });
+  try {
+    // Use OpenAI to analyze and summarize the extracted text
+    const response = await openai.createCompletion({
+      model: "text-davinci-002",
+      prompt: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`,
+      max_tokens: 150,
+    });
 
-  const summary = response.data.choices[0].text.trim();
+    const summary = response.data.choices[0].text.trim();
 
-  // Return placeholder data
-  return [
-    {
-      projectName: `${state} ${infoType} Project 1`,
-      budget: '$100 million',
-      totalEstimatedCost: '$150 million',
-      statisticalArea: 'Central Region',
-    },
-    {
-      projectName: `${state} ${infoType} Project 2`,
-      budget: '$75 million',
-      totalEstimatedCost: '$120 million',
-      statisticalArea: 'Northern Region',
-    },
-    // Add more placeholder projects as needed
-  ];
+    // Return placeholder data along with the summary
+    return [
+      {
+        projectName: `${state} ${infoType} Project 1`,
+        budget: '$100 million',
+        totalEstimatedCost: '$150 million',
+        statisticalArea: 'Central Region',
+        summary: summary,
+      },
+      {
+        projectName: `${state} ${infoType} Project 2`,
+        budget: '$75 million',
+        totalEstimatedCost: '$120 million',
+        statisticalArea: 'Northern Region',
+        summary: summary,
+      },
+      // Add more placeholder projects as needed
+    ];
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error);
+    throw new Error('Failed to analyze the extracted information');
+  }
 };
