@@ -22,12 +22,13 @@ export const extractInformation = async (state, infoType) => {
   const extractedText = `Sample extracted text for ${state} ${infoType} projects`;
 
   try {
-    // Use OpenAI to analyze and summarize the extracted text
+    console.log('Calling OpenAI API...');
     const response = await openai.createCompletion({
       model: "text-davinci-002",
       prompt: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`,
       max_tokens: 150,
     });
+    console.log('OpenAI API response:', response);
 
     const summary = response.data.choices[0].text.trim();
 
@@ -51,6 +52,6 @@ export const extractInformation = async (state, infoType) => {
     ];
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
-    throw new Error('Failed to analyze the extracted information');
+    throw new Error(`Failed to analyze the extracted information: ${error.message}\n\nStack trace: ${error.stack}`);
   }
 };

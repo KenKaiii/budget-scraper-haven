@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
+import { extractInformation } from '../utils/PDFExtractor';
+import Notification from './Notification';
 
 const australianStates = [
   'Queensland',
@@ -20,11 +22,30 @@ const informationTypes = [
   'Other Infrastructure Projects',
 ];
 
-const HomePage = ({ onExtract, selectedState, setSelectedState, selectedInfoType, setSelectedInfoType, isLoading, error }) => {
-  const handleExtract = () => {
+const HomePage = ({ onExtract }) => {
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedInfoType, setSelectedInfoType] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleExtract = async () => {
     if (selectedState && selectedInfoType) {
-      onExtract(selectedState, selectedInfoType);
+      setIsLoading(true);
+      setError(null);
+      try {
+        const results = await extractInformation(selectedState, selectedInfoType);
+        onExtract(results);
+      } catch (err) {
+        console.error('Extraction error:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
+  };
+
+  const copyErrorToClipboard = () => {
+    navigator.clipboard.writeText(error);
   };
 
   return (
@@ -69,7 +90,18 @@ const HomePage = ({ onExtract, selectedState, setSelectedState, selectedInfoType
           {isLoading ? 'Extracting...' : 'Extract Information'}
         </Button>
       </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && (
+        <Notification 
+          message={error} 
+          type="error"
+          onClose={() => setError(null)}
+          action={
+            <Button onClick={copyErrorToClipboard} variant="outline" size="sm">
+              Copy Error
+            </Button>
+          }
+        />
+      )}
     </div>
   );
 };
