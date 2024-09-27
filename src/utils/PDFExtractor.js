@@ -27,32 +27,18 @@ export const extractInformation = async (state, infoType) => {
       model: "gpt-3.5-turbo",
       messages: [
         {role: "system", content: "You are a helpful assistant that summarizes text about infrastructure projects."},
-        {role: "user", content: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`}
+        {role: "user", content: `Summarize the following text about ${infoType} in ${state} and provide a list of projects with their budget, total estimated cost, and statistical area:\n\n${extractedText}`}
       ],
-      max_tokens: 150,
+      max_tokens: 500,
     });
     console.log('OpenAI API response:', response);
 
     const summary = response.data.choices[0].message.content.trim();
 
-    // Return placeholder data along with the summary
-    return [
-      {
-        projectName: `${state} ${infoType} Project 1`,
-        budget: '$100 million',
-        totalEstimatedCost: '$150 million',
-        statisticalArea: 'Central Region',
-        summary: summary,
-      },
-      {
-        projectName: `${state} ${infoType} Project 2`,
-        budget: '$75 million',
-        totalEstimatedCost: '$120 million',
-        statisticalArea: 'Northern Region',
-        summary: summary,
-      },
-      // Add more placeholder projects as needed
-    ];
+    // Parse the summary to extract project information
+    const projects = parseProjectsFromSummary(summary);
+
+    return projects;
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     let errorMessage = `Failed to analyze the extracted information: ${error.message}`;
@@ -62,4 +48,32 @@ export const extractInformation = async (state, infoType) => {
     errorMessage += `\nStack trace: ${error.stack}`;
     throw new Error(errorMessage);
   }
+};
+
+const parseProjectsFromSummary = (summary) => {
+  // This is a simple parser. You might need to adjust it based on the actual format of the summary.
+  const lines = summary.split('\n');
+  const projects = [];
+  let currentProject = {};
+
+  for (const line of lines) {
+    if (line.startsWith('Project:')) {
+      if (Object.keys(currentProject).length > 0) {
+        projects.push(currentProject);
+      }
+      currentProject = { projectName: line.split('Project:')[1].trim() };
+    } else if (line.startsWith('Budget:')) {
+      currentProject.budget = line.split('Budget:')[1].trim();
+    } else if (line.startsWith('Total Estimated Cost:')) {
+      currentProject.totalEstimatedCost = line.split('Total Estimated Cost:')[1].trim();
+    } else if (line.startsWith('Statistical Area:')) {
+      currentProject.statisticalArea = line.split('Statistical Area:')[1].trim();
+    }
+  }
+
+  if (Object.keys(currentProject).length > 0) {
+    projects.push(currentProject);
+  }
+
+  return projects;
 };
