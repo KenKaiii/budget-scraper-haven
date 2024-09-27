@@ -62,28 +62,45 @@ export const extractInformation = async (state, infoType) => {
 };
 
 const parseProjectsFromSummary = (summary) => {
-  const lines = summary.split('\n');
+  console.log('Parsing summary:', summary);
   const projects = [];
-  let currentProject = {};
-
+  const lines = summary.split('.');
+  
   for (const line of lines) {
-    if (line.startsWith('Project:')) {
-      if (Object.keys(currentProject).length > 0) {
-        projects.push(currentProject);
+    const trimmedLine = line.trim();
+    if (trimmedLine.includes('project') || trimmedLine.includes('upgrade')) {
+      const project = {};
+      
+      // Extract project name
+      const nameMatch = trimmedLine.match(/the (.+?) with/i);
+      if (nameMatch) {
+        project.projectName = nameMatch[1].trim();
       }
-      currentProject = { projectName: line.split('Project:')[1].trim() };
-    } else if (line.startsWith('Budget:')) {
-      currentProject.budget = line.split('Budget:')[1].trim();
-    } else if (line.startsWith('Total Estimated Cost:')) {
-      currentProject.totalEstimatedCost = line.split('Total Estimated Cost:')[1].trim();
-    } else if (line.startsWith('Statistical Area:')) {
-      currentProject.statisticalArea = line.split('Statistical Area:')[1].trim();
+      
+      // Extract budget/total estimated cost
+      const costMatch = trimmedLine.match(/total estimated cost of \$?([\d.]+) (million|billion)/i);
+      if (costMatch) {
+        let cost = parseFloat(costMatch[1]);
+        if (costMatch[2].toLowerCase() === 'billion') {
+          cost *= 1000;
+        }
+        project.totalEstimatedCost = `$${cost} million`;
+      }
+      
+      // Extract statistical area
+      const areaMatch = trimmedLine.match(/in the (.+?) statistical area/i);
+      if (areaMatch) {
+        project.statisticalArea = areaMatch[1].trim();
+      }
+      
+      // Only add the project if we have at least a name and cost
+      if (project.projectName && project.totalEstimatedCost) {
+        project.budget = project.totalEstimatedCost; // Assuming budget is the same as total estimated cost
+        projects.push(project);
+      }
     }
   }
-
-  if (Object.keys(currentProject).length > 0) {
-    projects.push(currentProject);
-  }
-
+  
+  console.log('Parsed projects:', projects);
   return projects;
 };
