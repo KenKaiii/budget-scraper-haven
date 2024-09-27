@@ -11,7 +11,7 @@ const pdfPaths = {
   // Add paths for other states
 };
 
-export const extractInformation = async (state) => {
+export const extractInformation = async (state, infoType) => {
   const pdfPath = pdfPaths[state];
   if (!pdfPath) {
     throw new Error('PDF not found for the selected state');
@@ -19,12 +19,12 @@ export const extractInformation = async (state) => {
 
   // TODO: Implement actual PDF extraction logic here
   // For now, we'll use a placeholder extraction
-  const extractedText = `Sample extracted text for ${state} infrastructure projects`;
+  const extractedText = `Sample extracted text for ${state} ${infoType} projects`;
 
   // Use OpenAI to analyze and summarize the extracted text
   const response = await openai.createCompletion({
     model: "text-davinci-002",
-    prompt: `Summarize the following text about infrastructure projects in ${state}:\n\n${extractedText}`,
+    prompt: `Summarize the following text about ${infoType} in ${state}:\n\n${extractedText}`,
     max_tokens: 150,
   });
 
@@ -33,11 +33,16 @@ export const extractInformation = async (state) => {
   // Return placeholder data
   return [
     {
-      projectName: `${state} Road Improvement`,
+      projectName: `${state} ${infoType} Project 1`,
       budget: '$100 million',
-      description: summary,
-      timeline: '2023-2025',
-      source: pdfPath,
+      totalEstimatedCost: '$150 million',
+      statisticalArea: 'Central Region',
+    },
+    {
+      projectName: `${state} ${infoType} Project 2`,
+      budget: '$75 million',
+      totalEstimatedCost: '$120 million',
+      statisticalArea: 'Northern Region',
     },
     // Add more placeholder projects as needed
   ];

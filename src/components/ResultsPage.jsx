@@ -14,15 +14,15 @@ const ResultsPage = ({ results, onBack }) => {
   };
 
   const sortedResults = [...results].sort((a, b) => {
-    if (sortBy === 'budget') {
-      return parseFloat(a.budget.replace(/[^0-9.-]+/g, "")) - parseFloat(b.budget.replace(/[^0-9.-]+/g, ""));
+    if (sortBy === 'budget' || sortBy === 'totalEstimatedCost') {
+      return parseFloat(a[sortBy].replace(/[^0-9.-]+/g, "")) - parseFloat(b[sortBy].replace(/[^0-9.-]+/g, ""));
     }
     return a[sortBy].localeCompare(b[sortBy]);
   });
 
   const filteredResults = sortedResults.filter(result =>
     result.projectName.toLowerCase().includes(filterTerm.toLowerCase()) ||
-    result.description.toLowerCase().includes(filterTerm.toLowerCase())
+    result.statisticalArea.toLowerCase().includes(filterTerm.toLowerCase())
   );
 
   return (
@@ -42,7 +42,8 @@ const ResultsPage = ({ results, onBack }) => {
           <SelectContent>
             <SelectItem value="projectName">Project Name</SelectItem>
             <SelectItem value="budget">Budget</SelectItem>
-            <SelectItem value="timeline">Timeline</SelectItem>
+            <SelectItem value="totalEstimatedCost">Total Estimated Cost</SelectItem>
+            <SelectItem value="statisticalArea">Statistical Area</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -51,9 +52,8 @@ const ResultsPage = ({ results, onBack }) => {
           <TableRow>
             <TableHead>Project Name</TableHead>
             <TableHead>Budget</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Timeline</TableHead>
-            <TableHead>Source</TableHead>
+            <TableHead>Total Estimated Cost</TableHead>
+            <TableHead>Statistical Area</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,9 +61,8 @@ const ResultsPage = ({ results, onBack }) => {
             <TableRow key={index}>
               <TableCell>{result.projectName}</TableCell>
               <TableCell>{result.budget}</TableCell>
-              <TableCell>{result.description}</TableCell>
-              <TableCell>{result.timeline}</TableCell>
-              <TableCell>{result.source}</TableCell>
+              <TableCell>{result.totalEstimatedCost}</TableCell>
+              <TableCell>{result.statisticalArea}</TableCell>
             </TableRow>
           ))}
         </TableBody>
