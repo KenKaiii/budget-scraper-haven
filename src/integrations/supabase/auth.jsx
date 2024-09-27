@@ -1,49 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from './supabase.js';
 import { useNavigate } from 'react-router-dom';
 
-const customTheme = {
-  default: {
-    colors: {
-      brand: '#2563eb',
-      brandAccent: '#1d4ed8',
-      inputBackground: 'white',
-      inputBorder: '#e2e8f0',
-      inputText: '#1e293b',
-      inputLabelText: '#64748b',
-    },
-    space: {
-      inputPadding: '1rem',
-      buttonPadding: '1rem',
-    },
-    borderWidths: {
-      buttonBorderWidth: '0px',
-      inputBorderWidth: '0px 0px 2px 0px',
-    },
-    radii: {
-      borderRadiusButton: '0.375rem',
-      buttonBorderRadius: '0.375rem',
-      inputBorderRadius: '0.375rem',
-    },
-    fontSizes: {
-      baseInputSize: '1rem',
-      baseButtonSize: '1rem',
-    },
-    fonts: {
-      bodyFontFamily: `'Roboto', sans-serif`,
-      buttonFontFamily: `'Roboto', sans-serif`,
-      inputFontFamily: `'Roboto', sans-serif`,
-    },
-  },
+const AuthContext = createContext();
+
+export const SupabaseAuthProvider = ({ children }) => {
+  const [session, setSession] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const value = {
+    session,
+    signOut: () => supabase.auth.signOut(),
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useSupabaseAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
+  }
+  return context;
 };
 
 export const SupabaseAuthUI = () => {
   return (
     <Auth
       supabaseClient={supabase}
-      appearance={{ theme: ThemeSupa, ...customTheme }}
+      appearance={{ theme: ThemeSupa }}
       theme="default"
       providers={[]}
     />
