@@ -5,6 +5,7 @@ import axios from 'axios';
 const ResultsPage = ({ results, onBack }) => {
   const [formattedResults, setFormattedResults] = useState('');
   const [displayedProjects, setDisplayedProjects] = useState(20);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     formatResults();
@@ -17,6 +18,7 @@ ${JSON.stringify(projectsToFormat, null, 2)}
 Please provide a clean, readable format for each project, including all relevant information.`;
 
     try {
+      console.log('API Key:', import.meta.env.VITE_OPENAI_API_KEY); // Log the API key (remove in production)
       const response = await axios.post('https://api.openai.com/v1/chat/completions', {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
@@ -28,8 +30,10 @@ Please provide a clean, readable format for each project, including all relevant
       });
 
       setFormattedResults(response.data.choices[0].message.content);
+      setError(null);
     } catch (error) {
       console.error('Error formatting results:', error);
+      setError(`Error: ${error.message}. Status: ${error.response?.status}. Data: ${JSON.stringify(error.response?.data)}`);
       setFormattedResults('Error formatting results. Please check your API key and try again.');
     }
   };
@@ -41,6 +45,10 @@ Please provide a clean, readable format for each project, including all relevant
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Extracted Project Information</h2>
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <strong className="font-bold">Error:</strong>
+        <span className="block sm:inline"> {error}</span>
+      </div>}
       <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
         {formattedResults}
       </pre>
