@@ -22,7 +22,7 @@ Please provide a clean, readable format for each project, including all relevant
         messages: [{ role: "user", content: prompt }],
       }, {
         headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
           'Content-Type': 'application/json',
         },
       });
@@ -30,7 +30,7 @@ Please provide a clean, readable format for each project, including all relevant
       setFormattedResults(response.data.choices[0].message.content);
     } catch (error) {
       console.error('Error formatting results:', error);
-      setFormattedResults('Error formatting results. Please try again.');
+      setFormattedResults('Error formatting results. Please check your API key and try again.');
     }
   };
 
