@@ -5,16 +5,7 @@ import { extractInformation } from '../utils/PDFExtractor';
 import Notification from './Notification';
 import { Loader2 } from 'lucide-react';
 
-const australianStates = [
-  'Queensland',
-  'New South Wales',
-  'Victoria',
-  'Northern Territory',
-  'Western Australia',
-  'South Australia',
-  'Tasmania',
-  'Australian Capital Territory',
-];
+const australianStates = ['Queensland'];
 
 const informationTypes = [
   'Healthcare Projects',
@@ -36,9 +27,7 @@ const HomePage = ({ onExtract }) => {
       setIsLoading(true);
       setError(null);
       try {
-        console.log('Calling extractInformation function...');
         const results = await extractInformation(selectedState, selectedInfoType);
-        console.log('Extraction results:', results);
         onExtract(results);
       } catch (err) {
         console.error('Extraction error:', err);
