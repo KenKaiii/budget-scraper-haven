@@ -1,8 +1,8 @@
 import Papa from 'papaparse';
 
-export const parseCSV = async (filePath) => {
+export const parseCSV = async (url) => {
   try {
-    const response = await fetch(filePath);
+    const response = await fetch(url);
     const csvText = await response.text();
     return new Promise((resolve, reject) => {
       Papa.parse(csvText, {
@@ -16,7 +16,7 @@ export const parseCSV = async (filePath) => {
       });
     });
   } catch (error) {
-    console.error('Error reading CSV file:', error);
-    throw new Error('Failed to read CSV file');
+    console.error('Error fetching or parsing CSV:', error);
+    throw new Error('Failed to fetch or parse CSV file');
   }
 };

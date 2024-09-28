@@ -2,8 +2,8 @@ import { parseCSV } from './CSVParser';
 
 export const extractInformation = async (state, infoType) => {
   try {
-    // Update the file path to match the correct location
-    const csvData = await parseCSV('/budgetfiles/QLDBudgets.csv');
+    const csvUrl = 'https://raw.githubusercontent.com/KenKaiii/budget-scraper-haven/main/budgetfiles/QLDBudgets.csv';
+    const csvData = await parseCSV(csvUrl);
     
     // Filter data based on user selection
     const filteredData = csvData.filter(row => {
