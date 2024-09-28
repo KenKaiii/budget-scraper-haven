@@ -31,7 +31,8 @@ export const extractInformation = async (state, infoType) => {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      extractedText += parseTableLikeStructure(pageText) + '\n';
     }
 
     console.log('Extracted text:', extractedText);
@@ -53,6 +54,20 @@ export const extractInformation = async (state, infoType) => {
     console.error('Error in extraction process:', error);
     throw new Error(`Failed to analyze the extracted information: ${error.message}`);
   }
+};
+
+const parseTableLikeStructure = (text) => {
+  // Split the text into lines
+  const lines = text.split('\n');
+  
+  // Process each line to identify and structure table-like data
+  const structuredData = lines.map(line => {
+    // Split the line by multiple spaces to separate columns
+    const columns = line.split(/\s{2,}/);
+    return columns.join(' | ');
+  });
+
+  return structuredData.join('\n');
 };
 
 const parseProjectsFromSummary = (summary) => {
