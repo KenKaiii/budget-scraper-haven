@@ -1,98 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Input } from './ui/input';
+import axios from 'axios';
 
 const ResultsPage = ({ results, onBack }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [formattedResults, setFormattedResults] = useState('');
+  const [displayedProjects, setDisplayedProjects] = useState(20);
 
-  const handleDownload = () => {
-    const csv = [
-      ['Project Name', 'Budget', 'Timeline', 'Details'],
-      ...results.map(project => [
-        project.projectName || 'N/A',
-        project.budget || 'N/A',
-        project.timeline || 'N/A',
-        project.details || 'N/A'
-      ])
-    ].map(row => row.join(',')).join('\n');
+  useEffect(() => {
+    formatResults();
+  }, [results, displayedProjects]);
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'extracted_projects.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  const formatResults = async () => {
+    const projectsToFormat = results.slice(0, displayedProjects);
+    const prompt = `Format the following project data neatly:
+${JSON.stringify(projectsToFormat, null, 2)}
+Please provide a clean, readable format for each project, including all relevant information.`;
 
-  const handleSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const sortedResults = React.useMemo(() => {
-    let sortableResults = [...results];
-    if (sortConfig.key !== null) {
-      sortableResults.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
+    try {
+      const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       });
-    }
-    return sortableResults;
-  }, [results, sortConfig]);
 
-  const filteredResults = sortedResults.filter(project =>
-    project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      setFormattedResults(response.data.choices[0].message.content);
+    } catch (error) {
+      console.error('Error formatting results:', error);
+      setFormattedResults('Error formatting results. Please try again.');
+    }
+  };
+
+  const handleLoadMore = () => {
+    setDisplayedProjects(prev => Math.min(prev + 20, results.length));
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Extracted Project Information</h2>
-      <Input
-        type="text"
-        placeholder="Search projects..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4"
-      />
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead onClick={() => handleSort('projectName')} className="cursor-pointer">Project Name</TableHead>
-            <TableHead onClick={() => handleSort('budget')} className="cursor-pointer">Budget</TableHead>
-            <TableHead onClick={() => handleSort('timeline')} className="cursor-pointer">Timeline</TableHead>
-            <TableHead>Details</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredResults.map((project, index) => (
-            <TableRow key={index}>
-              <TableCell>{project.projectName || 'N/A'}</TableCell>
-              <TableCell>{project.budget || 'N/A'}</TableCell>
-              <TableCell>{project.timeline || 'N/A'}</TableCell>
-              <TableCell>{project.details || 'No additional details available.'}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="flex justify-between mt-6">
-        <Button onClick={onBack}>Back to Home</Button>
-        <Button onClick={handleDownload}>Download Results (CSV)</Button>
-      </div>
+      <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
+        {formattedResults}
+      </pre>
+      {displayedProjects < results.length && (
+        <Button onClick={handleLoadMore} className="mt-4">Load More</Button>
+      )}
+      <Button onClick={onBack} className="mt-4 ml-4">Back to Home</Button>
     </div>
   );
 };

@@ -11,13 +11,8 @@ export const extractInformation = async (state, infoType) => {
       return projectName.toLowerCase().includes(infoType.toLowerCase());
     });
 
-    // Map the filtered data to the required format
-    return filteredData.map(row => ({
-      projectName: row['Project'] || 'N/A',
-      budget: row['Budget'] || row['Total Estimated Cost'] || 'N/A',
-      timeline: row['Post'] || 'N/A',
-      details: `Statistical Area: ${row['Statistical Area'] || 'N/A'}, Expenditure: ${row['Expenditure'] || 'N/A'}`
-    }));
+    // Return raw data
+    return filteredData;
   } catch (error) {
     console.error('Error extracting information:', error);
     throw new Error('Failed to extract budget information');
