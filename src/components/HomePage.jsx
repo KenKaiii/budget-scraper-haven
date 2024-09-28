@@ -42,7 +42,7 @@ const HomePage = ({ onExtract }) => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Infrastructure Budget Information Extractor</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Queensland Budget Information Extractor</h1>
       <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Select a state</label>

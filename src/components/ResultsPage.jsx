@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Input } from './ui/input';
 
 const ResultsPage = ({ results, onBack }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
   const handleDownload = () => {
     const csv = [
       ['Project Name', 'Budget', 'Timeline', 'Details'],
@@ -26,19 +31,64 @@ const ResultsPage = ({ results, onBack }) => {
     }
   };
 
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedResults = React.useMemo(() => {
+    let sortableResults = [...results];
+    if (sortConfig.key !== null) {
+      sortableResults.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableResults;
+  }, [results, sortConfig]);
+
+  const filteredResults = sortedResults.filter(project =>
+    project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-4">Extracted Project Information</h2>
-      <div className="space-y-6">
-        {results.map((project, index) => (
-          <div key={index} className="bg-white p-4 rounded-md shadow">
-            <h3 className="text-xl font-semibold mb-2">{project.projectName || 'Unnamed Project'}</h3>
-            <p><strong>Budget:</strong> {project.budget || 'N/A'}</p>
-            <p><strong>Timeline:</strong> {project.timeline || 'N/A'}</p>
-            <p><strong>Details:</strong> {project.details || 'No additional details available.'}</p>
-          </div>
-        ))}
-      </div>
+      <Input
+        type="text"
+        placeholder="Search projects..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4"
+      />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead onClick={() => handleSort('projectName')} className="cursor-pointer">Project Name</TableHead>
+            <TableHead onClick={() => handleSort('budget')} className="cursor-pointer">Budget</TableHead>
+            <TableHead onClick={() => handleSort('timeline')} className="cursor-pointer">Timeline</TableHead>
+            <TableHead>Details</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredResults.map((project, index) => (
+            <TableRow key={index}>
+              <TableCell>{project.projectName || 'N/A'}</TableCell>
+              <TableCell>{project.budget || 'N/A'}</TableCell>
+              <TableCell>{project.timeline || 'N/A'}</TableCell>
+              <TableCell>{project.details || 'No additional details available.'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <div className="flex justify-between mt-6">
         <Button onClick={onBack}>Back to Home</Button>
         <Button onClick={handleDownload}>Download Results (CSV)</Button>
