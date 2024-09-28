@@ -32,7 +32,7 @@ Please provide a clean, readable format for each project, including all relevant
       setError(null);
     } catch (error) {
       console.error('Error formatting results:', error);
-      setError(`Error: ${error.message}. Status: ${error.response?.status}. Data: ${JSON.stringify(error.response?.data)}`);
+      setError(`Error: ${error.message}. Please check your API key and try again.`);
       setFormattedResults('Error formatting results. Please check the console for more details.');
     }
   };
