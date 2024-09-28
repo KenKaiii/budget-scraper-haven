@@ -18,7 +18,6 @@ ${JSON.stringify(projectsToFormat, null, 2)}
 Please provide a clean, readable format for each project, including all relevant information.`;
 
     try {
-      console.log('API Key:', import.meta.env.VITE_OPENAI_API_KEY); // Log the API key (remove in production)
       const response = await axios.post('https://api.openai.com/v1/chat/completions', {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
@@ -34,7 +33,7 @@ Please provide a clean, readable format for each project, including all relevant
     } catch (error) {
       console.error('Error formatting results:', error);
       setError(`Error: ${error.message}. Status: ${error.response?.status}. Data: ${JSON.stringify(error.response?.data)}`);
-      setFormattedResults('Error formatting results. Please check your API key and try again.');
+      setFormattedResults('Error formatting results. Please check the console for more details.');
     }
   };
 
