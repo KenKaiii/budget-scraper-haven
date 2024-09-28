@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import axios from 'axios';
-import { getChatGPTApiKey } from '../utils/awsUtils';
 
 const ResultsPage = ({ results, onBack }) => {
   const [formattedResults, setFormattedResults] = useState('');
@@ -19,13 +18,12 @@ ${JSON.stringify(projectsToFormat, null, 2)}
 Please provide a clean, readable format for each project, including all relevant information.`;
 
     try {
-      const apiKey = await getChatGPTApiKey();
       const response = await axios.post('https://api.openai.com/v1/chat/completions', {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
       }, {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
           'Content-Type': 'application/json',
         },
       });

@@ -4,7 +4,6 @@ import { Button } from './ui/button';
 import { extractInformation } from '../utils/CSVExtractor';
 import Notification from './Notification';
 import { Loader2 } from 'lucide-react';
-import ResultsPage from './ResultsPage';
 
 const australianStates = ['Queensland'];
 
@@ -17,20 +16,19 @@ const informationTypes = [
   'Other Infrastructure Projects',
 ];
 
-const HomePage = () => {
+const HomePage = ({ onExtract }) => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedInfoType, setSelectedInfoType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [results, setResults] = useState(null);
 
   const handleExtract = async () => {
     if (selectedState && selectedInfoType) {
       setIsLoading(true);
       setError(null);
       try {
-        const extractedResults = await extractInformation(selectedState, selectedInfoType);
-        setResults(extractedResults);
+        const results = await extractInformation(selectedState, selectedInfoType);
+        onExtract(results);
       } catch (err) {
         console.error('Extraction error:', err);
         setError(err.message || 'An error occurred during extraction. Please try again.');
@@ -41,14 +39,6 @@ const HomePage = () => {
       setError('Please select both a state and an information type.');
     }
   };
-
-  const handleBack = () => {
-    setResults(null);
-  };
-
-  if (results) {
-    return <ResultsPage results={results} onBack={handleBack} />;
-  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">

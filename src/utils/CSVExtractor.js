@@ -11,7 +11,7 @@ export const extractInformation = async (state, infoType) => {
       return projectName.toLowerCase().includes(infoType.toLowerCase());
     });
 
-    // Return filtered data
+    // Return raw data
     return filteredData;
   } catch (error) {
     console.error('Error extracting information:', error);
