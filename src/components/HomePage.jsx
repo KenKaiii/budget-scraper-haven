@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { extractInformation } from '../utils/PDFExtractor';
+import { extractInformation } from '../utils/CSVExtractor';
 import Notification from './Notification';
 import { Loader2 } from 'lucide-react';
 
